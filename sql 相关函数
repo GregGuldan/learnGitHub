@@ -1,0 +1,105 @@
+
+-- 拆分数组
+LATERAL VIEW EXPLODE(records) b AS record
+
+-- 替换函数：
+cast(substr(regexp_replace('2016-06-05 00:00:00.0', '-', ''),1,8) as int)
+
+
+-- 导入
+-- 1.创建
+-- drop table tmp.xxxx
+CREATE TABLE tmp.xxxx
+(
+    order_time timestamp,
+    u_user string,
+    receiver string,
+    telephone string,
+    address string
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','; -- 由于csv文件按','分割字段所以这里要指定','
+-- 2.UPLoad
+-- 3.导入
+LOAD DATA INPATH '/user/angze/xxxx.csv'
+OVERWRITE INTO TABLE tmp.xxxx;
+
+-- 日期减法函数
+date_sub()
+hive> select date_sub('2012-12-08',10) from lxw_dual;
+2012-11-28
+
+
+-- 查询字符串在另一个字符串中的位置
+
+select locate('/page',url) as locate_page
+
+
+-- 统计一个 day(int) 在周几
+select pmod(datediff(concat(substr(day,0,4),'-',substr(day,5,2),'-',substr(day,7,2)),'1970-01-01')+3,7)+1
+
+
+-- 取一个 day(int) 的周一在哪天
+select date_add(concat(substr(day,0,4),'-',substr(day,5,2),'-',substr(day,7,2)),negative(pmod(datediff(concat(substr(day,0,4),'-',substr(day,5,2),'-',substr(day,7,2)),'1970-01-01')+3,7)))
+or
+select to_date(date_trunc('week',concat(substr(day,0,4),'-',substr(day,5,2),'-',substr(day,7,2))))
+
+
+-- 月初在那一天
+select date_add(regist_time,- day(regist_time) + 1) as month_begin_date
+or
+select date_trunc('month','regist_time')
+
+
+-- 日期转换 day(int) → date(timestamp)
+
+select from_unixtime(unix_timestamp(day,'yyyyMMdd'),'yyyy-MM-dd')
+
+
+-- 计算数组长度
+
+select size(['123','123','123'])
+
+
+-- 计算连续排序下的序
+
+select row_number()over(order by user_type) as rank_user
+
+
+-- 为 APP 版本号建立规范，即，将 4.9 化为 4.09
+
+select if(LOCATE('.',d_app_version,3) = 5,substr(d_app_version,1,LOCATE('.',d_app_version,3) - 1),concat(substr(d_app_version,1,LOCATE('.',d_app_version,2)),0,substr(d_app_version,3,1)))  as norm_version
+
+
+-- 聚合为数组，列转行
+
+select collect_set(column_name) -- 去重
+select collect_list(column_name)  -- 不去重
+
+-- 字符串分隔为字符数组
+select split('str,ing',',')
+
+-- 数组转字符串
+select concat_ws(',',c_array)
+
+
+-- postgreSql中获取json值函数
+
+SELECT
+	json_extract_path(jsonschema,'title')
+-- 字符串处理函数  https://blog.csdn.net/lhxsir/article/details/79786142
+
+
+-- 计算分位数
+select
+    percentile_approx([column_name],0.5)
+
+
+-- 给数组排序
+select
+    SORT_ARRAY([array])
+
+
+-- 乘方运算
+select
+    power([被乘方项],[指数])
+
